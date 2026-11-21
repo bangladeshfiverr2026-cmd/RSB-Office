@@ -1,0 +1,196 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSB Office</title>
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #eef2f7;
+  color: #222;
+}
+header {
+  background: #1456a0;
+  color: white;
+  padding: 22px;
+  text-align: center;
+}
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px;
+  flex-wrap: wrap;
+}
+button {
+  background: #1456a0;
+  color: white;
+  border: 0;
+  padding: 12px 18px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+main {
+  max-width: 850px;
+  margin: 15px auto;
+  padding: 15px;
+}
+.panel {
+  background: white;
+  padding: 18px;
+  border-radius: 12px;
+}
+#writer {
+  min-height: 350px;
+  border: 1px solid #ccc;
+  padding: 15px;
+  outline: none;
+  background: white;
+}
+#sheet {
+  width: 100%;
+  border-collapse: collapse;
+}
+#sheet td {
+  border: 1px solid #aaa;
+  min-width: 65px;
+  height: 35px;
+  padding: 5px;
+}
+#sheet td[contenteditable="true"] {
+  background: #fff;
+}
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.hidden { display: none; }
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>RSB Office</h1>
+  <p>আপনার ডিজিটাল অফিস</p>
+</header>
+
+<nav>
+  <button onclick="showPage('writer')">RSB Writer</button>
+  <button onclick="showPage('sheets')">RSB Sheets</button>
+</nav>
+
+<main>
+<section id="writer" class="panel">
+  <h2>RSB Writer</h2>
+  <div class="tools">
+    <button onclick="format('bold')">Bold</button>
+    <button onclick="format('italic')">Italic</button>
+    <button onclick="format('underline')">Underline</button>
+    <button onclick="format('justifyCenter')">Center</button>
+    <button onclick="saveWriter()">Save</button>
+    <button onclick="downloadWriter()">Download TXT</button>
+  </div>
+  <div id="document" contenteditable="true">
+    এখানে আপনার লেখা শুরু করুন...
+  </div>
+</section>
+
+<section id="sheets" class="panel hidden">
+  <h2>RSB Sheets</h2>
+  <div class="tools">
+    <button onclick="saveSheet()">Save</button>
+    <button onclick="downloadCSV()">Download CSV</button>
+  </div>
+  <table id="sheet"></table>
+</section>
+</main>
+
+<footer>
+  <p>© 2026 RSB Office</p>
+  <p>Created for everyone</p>
+</footer>
+
+<script>
+function showPage(page) {
+  document.getElementById('writer').classList.toggle(
+    'hidden', page !== 'writer'
+  );
+  document.getElementById('sheets').classList.toggle(
+    'hidden', page !== 'sheets'
+  );
+}
+
+function format(command) {
+  document.execCommand(command, false, null);
+}
+
+function saveWriter() {
+  localStorage.setItem(
+    'rsb_writer',
+    document.getElementById('document').innerHTML
+  );
+  alert('লেখা সেভ হয়েছে');
+}
+
+function downloadWriter() {
+  let text = document.getElementById('document').innerText;
+  let file = new Blob([text], {type:'text/plain'});
+  let link = document.createElement('a');
+  link.href = URL.createObjectURL(file);
+  link.download = 'RSB-Writer.txt';
+  link.click();
+}
+
+document.getElementById('document').innerHTML =
+  localStorage.getItem('rsb_writer') ||
+  'এখানে আপনার লেখা শুরু করুন...';
+
+let table = document.getElementById('sheet');
+
+for (let r = 0; r < 10; r++) {
+  let row = table.insertRow();
+  for (let c = 0; c < 6; c++) {
+    let cell = row.insertCell();
+    cell.contentEditable = 'true';
+  }
+}
+
+function saveSheet() {
+  localStorage.setItem('rsb_sheet', table.innerHTML);
+  alert('হিসাব সেভ হয়েছে');
+}
+
+function downloadCSV() {
+  let rows = [...table.rows].map(row =>
+    [...row.cells].map(cell =>
+      '"' + cell.innerText.replace(/"/g, '""') + '"'
+    ).join(',')
+  );
+  let file = new Blob(
+    [rows.join('\n')],
+    {type:'text/csv'}
+  );
+  let link = document.createElement('a');
+  link.href = URL.createObjectURL(file);
+  link.download = 'RSB-Sheets.csv';
+  link.click();
+}
+
+if (localStorage.getItem('rsb_sheet')) {
+  table.innerHTML = localStorage.getItem('rsb_sheet');
+}
+</script>
+
+</body>
+  </html>
+  
